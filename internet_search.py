@@ -14,7 +14,6 @@ def search_web(question: str, profile: Dict[str, Any]) -> Dict[str, Any]:
     if not key:
         raise RuntimeError("GEMINI_API_KEY is not configured. Add it to Streamlit Secrets.")
 
-    client = genai.Client(api_key=key)
     prompt = f"""
 You are a Pakistan tax information assistant.
 The verified internal knowledge base did not provide sufficient evidence.
@@ -24,15 +23,18 @@ Answer the user's question in no more than 3 short lines and clearly say when ev
 User profile: {profile}
 Question: {question}
 """
-    response = client.models.generate_content(
-        model=LLM_MODEL,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            tools=[types.Tool(google_search=types.GoogleSearch())],
-            temperature=0.1,
-            max_output_tokens=180,
-        ),
-    )
+    # Use a context-managed client so every web-search request owns and closes its
+    # HTTP client cleanly; this prevents Streamlit reruns from reusing a closed client.
+    with genai.Client(api_key=key) as client:
+        response = client.models.generate_content(
+            model=LLM_MODEL,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                tools=[types.Tool(google_search=types.GoogleSearch())],
+                temperature=0.1,
+                max_output_tokens=180,
+            ),
+        )
 
     sources = []
     try:
