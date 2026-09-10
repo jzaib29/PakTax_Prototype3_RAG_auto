@@ -18,7 +18,7 @@ if not (VECTORSTORE_DIR / "index.faiss").exists() or not (VECTORSTORE_DIR / "met
     with st.spinner("Preparing the verified tax knowledge base for the first use…"):
         try:
             stats = build_index(str(KNOWLEDGE_BASE_DIR), str(VECTORSTORE_DIR), EMBEDDING_MODEL)
-            st.session_state["index_ready_message"] = f"Knowledge base ready: {stats["documents"]} chunks indexed."
+            st.session_state["index_ready_message"] = f"Knowledge base ready: {stats['documents']} chunks indexed."
         except Exception as exc:
             st.error(f"Could not prepare the RAG knowledge base: {exc}")
             st.stop()
