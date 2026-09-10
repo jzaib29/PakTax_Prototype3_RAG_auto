@@ -7,7 +7,7 @@ KNOWLEDGE_BASE_DIR = BASE_DIR / "knowledge_base"
 VECTORSTORE_DIR = BASE_DIR / "vectorstore"
 
 # Current stable, free-tier-friendly Gemini model for this MVP.
-LLM_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+LLM_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 TOP_K = 5
 CONFIDENCE_THRESHOLD = 0.62
