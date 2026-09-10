@@ -25,11 +25,28 @@ Always mention the most relevant source filename(s) when evidence supports an an
 """.strip()
 
 
-def _client() -> genai.Client:
+def _api_key() -> str:
     key = get_gemini_api_key()
     if not key:
         raise RuntimeError("GEMINI_API_KEY is not configured. Add it to Streamlit Secrets.")
-    return genai.Client(api_key=key)
+    return key
+
+
+def _generate(prompt: str, max_output_tokens: int):
+    """Create a fresh Gemini client for each request and close it immediately after use.
+
+    This avoids Streamlit rerun/session issues where a previously-created HTTP client
+    can remain closed and raise: "Cannot send a request, as the client has been closed".
+    """
+    with genai.Client(api_key=_api_key()) as client:
+        return client.models.generate_content(
+            model=LLM_MODEL,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.1,
+                max_output_tokens=max_output_tokens,
+            ),
+        )
 
 
 def _profile_text(profile: Dict[str, Any]) -> str:
@@ -84,11 +101,7 @@ RETRIEVED VERIFIED EVIDENCE:
 
 {length_instruction}
 """
-    response = _client().models.generate_content(
-        model=LLM_MODEL,
-        contents=prompt,
-        config=types.GenerateContentConfig(temperature=0.1, max_output_tokens=300 if more_info else 120),
-    )
+    response = _generate(prompt, 300 if more_info else 120)
     return {
         "answer": (response.text or "No answer generated.").strip(),
         "confidence": confidence,
