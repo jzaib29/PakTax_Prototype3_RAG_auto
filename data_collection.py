@@ -86,5 +86,5 @@ def collect_profile() -> bool:
     return False
 
 
-def profile_summary() -> Dict[str, Any]:
+def  profile_summary() -> Dict[str, Any]:
     return st.session_state.get("profile", {})
